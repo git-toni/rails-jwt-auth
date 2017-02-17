@@ -11,4 +11,5 @@ class ActiveSupport::TestCase
 
 
   fixtures :all
+  $redis.flushdb if Rails.env == 'test'
 end

@@ -1,24 +1,16 @@
-# README
+## JWT notes
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+JWT decoding checks the expiration field.
+```ruby
+plo = { user_id: 1 }
+ploexp = { user_id:1, exp: 1.day.ago.to_i } # Expired 'exp'
+algo = 'HS256'
+secret='123123'
 
-Things you may want to cover:
+encoded_ok = JWT.encode(plo, secret, algo)
+encoded_exp = JWT.encode(ploexp, secret, algo)
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+JWT.decode(encoded_ok,secret,true,{algorithm: algo}) # <-- Ok, no prob
+JWT.decode(encoded_ext,secret,true,{algorithm: algo})
+# raises -> JWT::ExpiredSignature: Signature has expired
+```

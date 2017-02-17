@@ -16,12 +16,11 @@ module AuthHelper
 
   def authenticate_token
     unless user_id_in_token?
-      @errors.push('NO ID')
+      #@errors.push('NO ID')
       return nil
       #render_feedback('Not Authenticated/ID')
     end
     unless valid_token?
-      @errors.push('Token expired')
       return nil
     end
     begin
@@ -29,9 +28,6 @@ module AuthHelper
     rescue JWT::VerificationError, JWT::DecodeError
       @errors.push('User not found')
       return nil
-      #render_feedback('User not verified')
-      ##render json: 'Not Authenticated/ID', status: status# and return
-      #return
     end  
   end
 
@@ -42,7 +38,12 @@ module AuthHelper
   end
 
   def auth_token
-    @auth_token ||= JsonWebToken.decode(http_token)
+    begin
+      @auth_token ||= JsonWebToken.decode(http_token)
+    rescue JWT::ExpiredSignature
+      @errors.push('Expired Token')
+      return false
+    end
   end
   def valid_token?
     #Search auth_token in DB/redis
